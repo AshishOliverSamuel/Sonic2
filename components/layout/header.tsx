@@ -12,7 +12,7 @@ export function Header() {
   const [showDropdown, setShowDropdown] = useState(false);
 
   return (
-    <header className="h-[64px] fixed top-0 right-0 left-0 md:left-[256px] z-30 bg-[rgba(0,0,0,0.8)] backdrop-blur-xl border-b border-[rgba(255,255,255,0.06)] hidden md:flex items-center justify-between px-6 transition-all duration-200">
+    <header className="h-[64px] fixed top-0 right-0 left-0 md:left-[256px] z-30 bg-[rgba(0,0,0,0.8)] backdrop-blur-xl border-b border-[rgba(255,255,255,0.06)] flex items-center justify-between px-4 md:px-6 transition-all duration-200">
       
       {/* Back/Forward Nav */}
       <div className="flex items-center gap-2">
