@@ -6,6 +6,7 @@ import { usePlayerStore } from '@/stores/player-store'
 import { formatDuration } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth-store'
 import { useRouter } from 'next/navigation'
+import { useLocalStorage } from '@/hooks/useLocalStorage'
 
 function getPlaylistGradient(name: string): string {
   const gradients = [
@@ -113,8 +114,8 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
   const [songs, setSongs] = useState<any[]>([])
   const [selectedColor, setSelectedColor] = useState<string | null>(null)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [sortField, setSortField] = useState<SortField>('default')
-  const [sortDir, setSortDir] = useState<SortDir>('asc')
+  const [sortField, setSortField] = useLocalStorage<SortField>('playlist:sortField', 'default')
+  const [sortDir, setSortDir] = useLocalStorage<SortDir>('playlist:sortDir', 'asc')
   const [isLoading, setIsLoading] = useState(true)
   const { playSong } = usePlayerStore()
   const { user } = useAuthStore()
