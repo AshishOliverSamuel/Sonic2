@@ -18,23 +18,7 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-        // Fetch playlist metadata
-        const metaUrl = new URL('https://www.googleapis.com/youtube/v3/playlists')
-        metaUrl.searchParams.set('part', 'snippet')
-        metaUrl.searchParams.set('id', playlistId)
-        metaUrl.searchParams.set('key', apiKey)
-
-        const metaRes = await fetch(metaUrl.toString())
-        const metaData = await metaRes.json()
-
-        if (!metaData.items?.length) {
-            return NextResponse.json({ error: 'Playlist not found or is private' }, { status: 404 })
-        }
-
-        const playlistTitle = metaData.items[0].snippet.title
-        const playlistThumbnail = metaData.items[0].snippet.thumbnails?.high?.url || ''
-
-        // Fetch ALL playlist items — paginate until no nextPageToken
+        // Fetch ALL playlist items first (no metadata call needed)
         const allItems: any[] = []
         let pageToken: string | undefined = undefined
 
@@ -50,29 +34,44 @@ export async function GET(request: NextRequest) {
             const itemsData = await itemsRes.json()
 
             if (!itemsRes.ok) {
-                return NextResponse.json({ error: 'Failed to fetch playlist items' }, { status: 500 })
+                console.error('playlistItems error:', JSON.stringify(itemsData))
+                return NextResponse.json(
+                    { error: itemsData.error?.message || 'Playlist not found or is private' },
+                    { status: itemsRes.status }
+                )
             }
 
             allItems.push(...(itemsData.items || []))
             pageToken = itemsData.nextPageToken
-        } while (pageToken) // keep going until all pages are fetched
+        } while (pageToken)
 
-        // Get video IDs — batch in groups of 50 (YouTube API limit per request)
+        if (allItems.length === 0) {
+            return NextResponse.json({ error: 'Playlist is empty or private' }, { status: 404 })
+        }
+
+        // Try to get playlist title from first item's snippet
+        const playlistTitle = allItems[0]?.snippet?.playlistId
+            ? `YouTube Playlist (${allItems.length} songs)`
+            : 'Imported Playlist'
+
+        // Filter out deleted/private videos
         const validItems = allItems.filter((item: any) => {
             const title = item.snippet?.title
-            return item.contentDetails?.videoId &&
+            return (
+                item.contentDetails?.videoId &&
                 title !== 'Deleted video' &&
                 title !== 'Private video'
+            )
         })
 
         const videoIds = validItems.map((item: any) => item.contentDetails.videoId)
 
-        // Batch duration requests: 50 IDs per request
+        // Batch duration requests in groups of 50
         const durationMap: Record<string, number> = {}
         for (let i = 0; i < videoIds.length; i += 50) {
             const batch = videoIds.slice(i, i + 50).join(',')
             const detailsUrl = new URL('https://www.googleapis.com/youtube/v3/videos')
-            detailsUrl.searchParams.set('part', 'contentDetails')
+            detailsUrl.searchParams.set('part', 'contentDetails,snippet')
             detailsUrl.searchParams.set('id', batch)
             detailsUrl.searchParams.set('key', apiKey)
 
@@ -101,11 +100,15 @@ export async function GET(request: NextRequest) {
                 ?.replace(/VEVO$/i, '')
                 ?.replace(/- Topic$/i, '')
                 ?.trim() || 'Unknown Artist',
-            thumbnail: item.snippet.thumbnails?.high?.url ||
+            thumbnail:
+                item.snippet.thumbnails?.high?.url ||
                 item.snippet.thumbnails?.medium?.url ||
                 item.snippet.thumbnails?.default?.url || '',
             duration: durationMap[item.contentDetails.videoId] || 0,
         }))
+
+        // Use first song thumbnail as playlist thumbnail
+        const playlistThumbnail = songs[0]?.thumbnail || ''
 
         return NextResponse.json({
             playlistId,
