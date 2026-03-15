@@ -23,14 +23,14 @@
     --bg-hover: #222222;
     --accent: #2563eb;
     --accent-hover: #1d4ed8;
-    --accent-glow: rgba(37,99,235,0.15);
-    --border: rgba(255,255,255,0.06);
-    --border-accent: rgba(37,99,235,0.4);
+    --accent-glow: rgba(37, 99, 235, 0.15);
+    --border: rgba(255, 255, 255, 0.06);
+    --border-accent: rgba(37, 99, 235, 0.4);
     --text-primary: #ffffff;
     --text-secondary: #a1a1aa;
     --text-tertiary: #52525b;
-    --glass-bg: rgba(255,255,255,0.03);
-    --glass-border: rgba(255,255,255,0.06);
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.06);
 
     --radius-sm: 8px;
     --radius-md: 12px;
@@ -75,13 +75,16 @@
     width: 6px;
     height: 6px;
   }
+
   ::-webkit-scrollbar-track {
     background: #0d0d0d;
   }
+
   ::-webkit-scrollbar-thumb {
     background: #2563eb;
     border-radius: 9999px;
   }
+
   ::-webkit-scrollbar-thumb:hover {
     background: #1d4ed8;
   }
@@ -94,25 +97,30 @@
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid var(--glass-border);
   }
+
   .glass-heavy {
-    background: rgba(0,0,0,0.8);
+    background: rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
   }
+
   .card {
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
   }
+
   .accent-glow {
     box-shadow: 0 0 20px var(--accent-glow);
   }
-  .scrollbar-hide::-webkit-scrollbar { 
-    display: none; 
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
-  .scrollbar-hide { 
-    -ms-overflow-style: none; 
-    scrollbar-width: none; 
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 
   /* Smooth page transitions */
@@ -125,12 +133,18 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  button, a {
+  button,
+  a {
     transition: transform 0.15s ease, opacity 0.15s ease, background-color 0.15s ease, color 0.15s ease;
   }
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-weight: 700;
   letter-spacing: -0.025em;
   color: var(--text-primary);

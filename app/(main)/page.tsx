@@ -9,7 +9,6 @@ import { useSearchParams, useRouter } from 'next/navigation';
 function VerifyToast() {
   const searchParams = useSearchParams();
   const [toast, setToast] = useState('');
-
   useEffect(() => {
     if (searchParams.get('verified') === 'true') {
       setToast('Email verified! Welcome to Sonic 🎵');
@@ -17,11 +16,9 @@ function VerifyToast() {
       window.history.replaceState({}, '', '/');
     }
   }, [searchParams]);
-
   if (!toast) return null;
-
   return (
-    <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-green-500 text-white px-6 py-3 rounded-full font-medium text-[14px] shadow-lg animate-fade-in">
+    <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-green-500 text-white px-6 py-3 rounded-full font-medium text-[14px] shadow-lg">
       ✓ {toast}
     </div>
   );
@@ -31,36 +28,23 @@ function MobileSearchBar() {
   const router = useRouter();
   const { user, isAuthenticated } = useAuthStore();
   const [mounted, setMounted] = useState(false);
-
   useEffect(() => setMounted(true), []);
-
-  // Returns null on server and first client render — prevents hydration mismatch.
-  // Appears after hydration is complete.
   if (!mounted) return null;
-
   return (
-    <div className="flex md:hidden items-center justify-between pt-4 pb-3">
+    <div className="flex md:hidden items-center justify-between pb-3">
       <div
         onClick={() => router.push('/search')}
-        className="flex-1 flex items-center gap-2 bg-[#141414] rounded-full px-4 py-2.5 mr-3 cursor-pointer border border-[rgba(255,255,255,0.06)] active:bg-[#1f1f1f] transition-colors"
+        className="flex-1 flex items-center gap-2 bg-[#141414] rounded-full px-4 py-2.5 mr-3 cursor-pointer border border-[rgba(255,255,255,0.06)]"
       >
         <Search className="w-4 h-4 text-[#52525b]" />
         <span className="text-[#52525b] text-sm">What do you want to play?</span>
       </div>
       {isAuthenticated ? (
-        <div
-          onClick={() => router.push('/settings')}
-          className="w-9 h-9 rounded-full bg-[#2563eb] flex items-center justify-center cursor-pointer flex-shrink-0 shadow-lg"
-        >
-          <span className="text-white text-sm font-bold">
-            {user?.email?.[0]?.toUpperCase() || 'P'}
-          </span>
+        <div onClick={() => router.push('/settings')} className="w-9 h-9 rounded-full bg-[#2563eb] flex items-center justify-center cursor-pointer flex-shrink-0">
+          <span className="text-white text-sm font-bold">{user?.email?.[0]?.toUpperCase() || 'P'}</span>
         </div>
       ) : (
-        <button
-          onClick={() => router.push('/login')}
-          className="px-4 py-2 bg-[#2563eb] text-white text-sm font-bold rounded-full flex-shrink-0 shadow-lg"
-        >
+        <button onClick={() => router.push('/login')} className="px-4 py-2 bg-[#2563eb] text-white text-sm font-bold rounded-full flex-shrink-0">
           Log in
         </button>
       )}
@@ -81,7 +65,6 @@ export default function HomePage() {
   };
 
   const name = isAuthenticated && profile ? profile.full_name?.split(' ')[0] : 'Guest';
-
   const [trendingSongs, setTrendingSongs] = useState<any[]>([]);
   const [isTrendingLoading, setIsTrendingLoading] = useState(true);
 
@@ -92,11 +75,8 @@ export default function HomePage() {
       const res = await fetch('/api/search?q=top%20hits%202025');
       const data = await res.json();
       if (data.songs) setTrendingSongs(data.songs.slice(0, 10));
-    } catch (error) {
-      console.error('Failed to fetch trending:', error);
-    } finally {
-      setIsTrendingLoading(false);
-    }
+    } catch (e) { console.error(e); }
+    finally { setIsTrendingLoading(false); }
   };
 
   const quickPicks = [
@@ -118,18 +98,11 @@ export default function HomePage() {
 
   return (
     <div className="pb-8 px-4 md:px-6 max-w-[1400px] mx-auto relative">
-
-      {/* Renders null on server, appears after hydration — no mismatch */}
       <MobileSearchBar />
-
-      <Suspense fallback={null}>
-        <VerifyToast />
-      </Suspense>
+      <Suspense fallback={null}><VerifyToast /></Suspense>
 
       <section className="mb-8 mt-2">
-        <h1 className="text-[28px] font-bold text-white tracking-tight">
-          {getGreeting()}, {name}
-        </h1>
+        <h1 className="text-[28px] font-bold text-white tracking-tight">{getGreeting()}, {name}</h1>
         <p className="text-[14px] text-[#a1a1aa]">What do you want to listen to?</p>
       </section>
 

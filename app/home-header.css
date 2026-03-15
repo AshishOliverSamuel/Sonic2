@@ -1,0 +1,8 @@
+/* Hide the fixed Header on mobile when on the home page.
+   data-page="home" is set on <body> by layout.tsx useEffect.
+   This runs only client-side after hydration — zero hydration impact. */
+@media (max-width: 767px) {
+    body[data-page="home"] header {
+        display: none;
+    }
+}
