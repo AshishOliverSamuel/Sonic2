@@ -1,7 +1,17 @@
 'use client'
 import { useEffect, useRef } from 'react'
 import { Capacitor } from '@capacitor/core'
-import { getNativeStreamUrl } from '@/lib/youtube-music-native'
+import {
+  getNativeStreamUrl,
+  nativeLoadAndPlay,
+  nativePlay,
+  nativePause,
+  nativeSeekTo,
+  addNativeProgressListener,
+  addNativeCompletionListener,
+  addNativeErrorListener,
+  removeAllNativeListeners,
+} from '@/lib/youtube-music-native'
 
 interface Props {
   videoId: string
@@ -12,6 +22,9 @@ interface Props {
   onEnded: () => void
   onError: () => void
   seekTo?: number
+  title?: string       // ← add
+  artist?: string      // ← add
+  thumbnail?: string   // ← add
 }
 
 declare global {
@@ -21,14 +34,19 @@ declare global {
   }
 }
 
-// ─── Native Android Player (audio tag) ───────────────────────────────────────
+// ─── Native Android Player ────────────────────────────────────────────────────
+// Audio lives entirely in MediaPlaybackService (background-safe).
+// This component just sends commands and listens to events.
+
 function NativePlayer({
   videoId, isPlaying, volume,
-  onReady, onProgress, onEnded, onError, seekTo
+  onReady, onProgress, onEnded, onError, seekTo,
+  title, artist, thumbnail
 }: Props) {
-  const audioRef = useRef<HTMLAudioElement>(null)
   const loadedId = useRef('')
+  const durationRef = useRef(0)
 
+  // Load new song whenever videoId changes
   useEffect(() => {
     if (!videoId || videoId.length !== 11) return
     if (loadedId.current === videoId) return
@@ -36,13 +54,14 @@ function NativePlayer({
 
     const load = async () => {
       try {
-        const streamUrl = await getNativeStreamUrl(videoId)
+        const streamUrl = await getNativeStreamUrl(videoId, title ?? '', artist ?? '')
         if (!streamUrl) { onError(); return }
-        const audio = audioRef.current
-        if (!audio) return
-        audio.src = streamUrl
-        audio.volume = volume
-        audio.load()
+        await nativeLoadAndPlay({
+          streamUrl,
+          title: title ?? '',
+          artist: artist ?? '',
+          thumbnail: thumbnail ?? '',
+        })
       } catch {
         onError()
       }
@@ -50,35 +69,40 @@ function NativePlayer({
     load()
   }, [videoId])
 
+  // Register event listeners from the native service
   useEffect(() => {
-    const audio = audioRef.current
-    if (!audio) return
-    if (isPlaying) audio.play().catch(() => { })
-    else audio.pause()
+    addNativeProgressListener((position, duration) => {
+      if (durationRef.current === 0 && duration > 0) {
+        durationRef.current = duration
+        onReady(duration)
+      }
+      onProgress(position)
+    })
+    addNativeCompletionListener(onEnded)
+    addNativeErrorListener(onError)
+
+    return () => { removeAllNativeListeners() }
+  }, [onReady, onProgress, onEnded, onError])
+
+  // Play / Pause
+  useEffect(() => {
+    if (isPlaying) nativePlay().catch(() => { })
+    else nativePause().catch(() => { })
   }, [isPlaying])
 
+  // Seek
   useEffect(() => {
-    if (audioRef.current) audioRef.current.volume = volume
-  }, [volume])
-
-  useEffect(() => {
-    if (seekTo !== undefined && audioRef.current) {
-      audioRef.current.currentTime = seekTo
-    }
+    if (seekTo !== undefined) nativeSeekTo(seekTo).catch(() => { })
   }, [seekTo])
 
-  return (
-    <audio
-      ref={audioRef}
-      onLoadedMetadata={() => onReady(audioRef.current?.duration || 0)}
-      onTimeUpdate={() => onProgress(audioRef.current?.currentTime || 0)}
-      onEnded={onEnded}
-      onError={onError}
-    />
-  )
+  // Volume — native MediaPlayer uses system volume; nothing to do here
+  // but you could add a nativeSetVolume() method later if needed
+
+  return null // No DOM element needed — service owns the audio
 }
 
-// ─── Web YouTube IFrame Player ────────────────────────────────────────────────
+// ─── Web YouTube IFrame Player (unchanged) ────────────────────────────────────
+
 function WebPlayer({
   videoId, isPlaying, volume,
   onReady, onProgress, onEnded, onError, seekTo
@@ -163,7 +187,8 @@ function WebPlayer({
   )
 }
 
-// ─── Main Export — picks correct player ───────────────────────────────────────
+// ─── Main Export ──────────────────────────────────────────────────────────────
+
 export function YouTubePlayer(props: Props) {
   if (Capacitor.isNativePlatform()) {
     return <NativePlayer {...props} />

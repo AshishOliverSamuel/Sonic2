@@ -229,6 +229,9 @@ export function Player() {
         isPlaying={isPlaying}
         volume={volume}
         seekTo={seekTo}
+        title={currentSong.title}        // ← add
+        artist={currentSong.artist}      // ← add
+        thumbnail={currentSong.thumbnail} // ← add
         onReady={(d) => setDuration(d)}
         onProgress={(t) => setProgress(t)}
         onEnded={() => next()}
