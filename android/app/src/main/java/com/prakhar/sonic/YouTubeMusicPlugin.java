@@ -21,7 +21,7 @@ public class YouTubeMusicPlugin extends Plugin {
             call.reject("videoId is required");
             return;
         }
-
+android.util.Log.d("YouTubeMusic", "getStreamUrl called for videoId: " + videoId);
         new Thread(() -> {
             try {
                 String streamUrl = fetchStreamUrl(videoId);
