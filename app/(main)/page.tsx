@@ -2,9 +2,9 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import { useAuthStore } from '@/stores/auth-store';
-import { Play, Trophy, Sparkles, Compass, Radio, Mic } from 'lucide-react';
+import { Play, Trophy, Sparkles, Compass, Radio, Mic, Search, User } from 'lucide-react';
 import { usePlayerStore } from '@/stores/player-store';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 function VerifyToast() {
   const searchParams = useSearchParams();
@@ -30,7 +30,8 @@ function VerifyToast() {
 }
 
 export default function HomePage() {
-  const { profile, isAuthenticated } = useAuthStore();
+  const router = useRouter();
+  const { user, profile, isAuthenticated } = useAuthStore();
   const playSong = usePlayerStore((s) => s.playSong);
 
   // Time based greeting
@@ -83,6 +84,34 @@ export default function HomePage() {
   return (
     <div className="pb-32 px-4 md:px-6 max-w-[1400px] mx-auto relative">
       
+      {/* Mobile Inline Search Bar */}
+      <div className="flex md:hidden items-center justify-between pt-4 pb-2">
+        <div
+          onClick={() => router.push('/search')}
+          className="flex-1 flex items-center gap-2 bg-[#141414] rounded-full px-4 py-2.5 mr-3 cursor-pointer border border-[rgba(255,255,255,0.06)]"
+        >
+          <Search className="w-4 h-4 text-[#52525b]" />
+          <span className="text-[#52525b] text-sm">What do you want to play?</span>
+        </div>
+        {isAuthenticated ? (
+          <div
+            onClick={() => router.push('/settings')}
+            className="w-9 h-9 rounded-full bg-[#2563eb] flex items-center justify-center cursor-pointer flex-shrink-0 shadow-lg"
+          >
+            <span className="text-white text-sm font-bold">
+              {user?.email?.[0]?.toUpperCase() || 'P'}
+            </span>
+          </div>
+        ) : (
+          <button
+            onClick={() => router.push('/login')}
+            className="px-4 py-2 bg-[#2563eb] text-white text-sm font-bold rounded-full flex-shrink-0 shadow-lg"
+          >
+            Log in
+          </button>
+        )}
+      </div>
+
       <Suspense fallback={null}>
         <VerifyToast />
       </Suspense>

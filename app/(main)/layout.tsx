@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Header } from '@/components/layout/header';
 import { MobileNav } from '@/components/layout/mobile-nav';
@@ -13,6 +14,8 @@ export default function MainLayout({
   children: React.ReactNode;
 }) {
   const { setMobile } = useUIStore();
+  const pathname = usePathname();
+  const isHome = pathname === '/';
 
   // Responsive detection
   useEffect(() => {
@@ -29,8 +32,10 @@ export default function MainLayout({
       <Sidebar />
 
       <main className="md:ml-[256px] pb-[160px] md:pb-[88px] min-h-screen overflow-y-auto">
-        <Header />
-        <div className="pt-[64px]">
+        <div className={isHome ? 'hidden md:block' : 'block'}>
+          <Header />
+        </div>
+        <div className={isHome ? 'pt-0' : 'pt-[64px]'}>
           {children}
         </div>
       </main>
