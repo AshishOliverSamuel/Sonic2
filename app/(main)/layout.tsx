@@ -28,7 +28,7 @@ export default function MainLayout({
     <div className="min-h-screen bg-black">
       <Sidebar />
 
-      <main className="md:ml-[256px] pb-[88px] min-h-screen overflow-y-auto">
+      <main className="md:ml-[256px] pb-[144px] md:pb-[88px] min-h-screen overflow-y-auto">
         <Header />
         <div className="pt-[64px]">
           {children}

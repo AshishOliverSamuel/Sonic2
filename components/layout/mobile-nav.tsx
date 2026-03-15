@@ -21,7 +21,7 @@ export function MobileNav() {
   if (!isMobile) return null;
 
   return (
-    <nav className="fixed bottom-[var(--player-height,0px)] left-0 right-0 z-40 glass-heavy border-t border-[var(--border)]">
+    <nav className="fixed bottom-0 left-0 right-0 z-[60] md:hidden bg-[rgba(0,0,0,0.95)] backdrop-blur-xl border-t border-[rgba(255,255,255,0.08)]">
       <div className="flex items-center justify-around py-2">
         {tabs.map((tab) => {
           const isActive = pathname === tab.href;

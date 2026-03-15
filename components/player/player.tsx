@@ -69,7 +69,7 @@ export function Player() {
         onError={() => next()}
       />
 
-      <div className="fixed bottom-0 left-0 right-0 z-50 h-[88px] md:h-[88px] bg-[rgba(0,0,0,0.92)] backdrop-blur-2xl border-t border-[rgba(255,255,255,0.08)] px-4 md:px-6 flex items-center justify-between transition-all duration-200">
+      <div className="fixed bottom-[56px] md:bottom-0 left-0 right-0 z-50 h-[72px] md:h-[88px] bg-[rgba(0,0,0,0.92)] backdrop-blur-2xl border-t border-[rgba(255,255,255,0.08)] px-4 md:px-6 flex items-center justify-between transition-all duration-200">
         
         {/* LEFT (Song Info) */}
         <div className="flex items-center gap-3 md:gap-4 w-[40%] md:w-[30%] min-w-0">
