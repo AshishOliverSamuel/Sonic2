@@ -173,7 +173,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
   // Toggle sort: same field flips direction, new field resets to asc
   const handleSort = (field: SortField) => {
     if (field === sortField) {
-      setSortDir(d => d === 'asc' ? 'desc' : 'asc')
+      setSortDir(sortDir === 'asc' ? 'desc' : 'asc')
     } else {
       setSortField(field)
       setSortDir('asc')
