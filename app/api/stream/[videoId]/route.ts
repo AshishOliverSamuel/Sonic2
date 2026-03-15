@@ -41,7 +41,7 @@ async function getSaavnStream(title: string, artist: string) {
     console.log(`[Stream] JioSaavn cleaned query: "${query}"`)
 
     const searchRes = await fetch(
-      `https://jiosaavn-api-sonic.prakhar123srivastava.workers.dev/api/search/songs?query=${encodeURIComponent(query)}&limit=3`,
+      `https://saavn.prakhar123srivastava.workers.dev/api/search/songs?query=${encodeURIComponent(query)}&limit=3`,
       { headers: { 'Accept': 'application/json' } }
     )
     if (!searchRes.ok) return null
