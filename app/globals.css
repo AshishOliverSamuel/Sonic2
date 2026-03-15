@@ -31,7 +31,6 @@
     --text-tertiary: #52525b;
     --glass-bg: rgba(255, 255, 255, 0.03);
     --glass-border: rgba(255, 255, 255, 0.06);
-
     --radius-sm: 8px;
     --radius-md: 12px;
     --radius-lg: 16px;
@@ -39,7 +38,6 @@
     --radius-full: 9999px;
   }
 
-  /* Force dark variables on base root to ensure no light mode flickering */
   html.dark {
     --bg-base: #000000;
     --bg-surface: #0d0d0d;
@@ -70,7 +68,6 @@
     color: #ffffff;
   }
 
-  /* Custom Scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -123,12 +120,10 @@
     scrollbar-width: none;
   }
 
-  /* Smooth page transitions */
   main {
     scroll-behavior: smooth;
   }
 
-  /* Remove tap highlight on mobile & smooth transitions */
   * {
     -webkit-tap-highlight-color: transparent;
   }
@@ -152,4 +147,13 @@ h6 {
 
 label {
   font-weight: 500;
+}
+
+/* Hide the desktop Header on mobile when on the home page.
+   data-page="home" is set on <body> by layout.tsx useEffect (client-only).
+   Placed outside @layer so it has full specificity and isn't tree-shaken. */
+@media (max-width: 767px) {
+  body[data-page="home"] header {
+    display: none !important;
+  }
 }
