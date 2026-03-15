@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, use, useRef } from 'react'
-import { Music, Play, Clock, Trash2, Music2, Shuffle, Pencil, Check, X, AlertTriangle } from 'lucide-react'
+import { Music, Play, Clock, Trash2, Music2, Shuffle, Pencil, AlertTriangle, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react'
 import { usePlayerStore } from '@/stores/player-store'
 import { formatDuration } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth-store'
@@ -9,40 +9,24 @@ import { useRouter } from 'next/navigation'
 
 function getPlaylistGradient(name: string): string {
   const gradients = [
-    'from-blue-600 to-purple-600',
-    'from-rose-500 to-orange-500',
-    'from-green-500 to-teal-500',
-    'from-violet-600 to-pink-600',
-    'from-amber-500 to-red-500',
-    'from-cyan-500 to-blue-500',
-    'from-fuchsia-500 to-purple-600',
-    'from-emerald-500 to-cyan-500',
+    'from-blue-600 to-purple-600', 'from-rose-500 to-orange-500',
+    'from-green-500 to-teal-500', 'from-violet-600 to-pink-600',
+    'from-amber-500 to-red-500', 'from-cyan-500 to-blue-500',
+    'from-fuchsia-500 to-purple-600', 'from-emerald-500 to-cyan-500',
   ]
   const index = name.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0) % gradients.length
   return gradients[index]
 }
 
-// Inline editable field — click to edit, Enter/blur to save
-function EditableField({
-  value,
-  onSave,
-  className,
-  inputClassName,
-  multiline = false,
-  placeholder,
-}: {
-  value: string
-  onSave: (val: string) => void
-  className?: string
-  inputClassName?: string
-  multiline?: boolean
-  placeholder?: string
+function EditableField({ value, onSave, className, inputClassName, multiline = false, placeholder }: {
+  value: string; onSave: (val: string) => void; className?: string
+  inputClassName?: string; multiline?: boolean; placeholder?: string
 }) {
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(value)
   const ref = useRef<HTMLInputElement & HTMLTextAreaElement>(null)
 
-  useEffect(() => { setDraft(value) }, [value])
+  useEffect(() => setDraft(value), [value])
   useEffect(() => { if (editing) ref.current?.focus() }, [editing])
 
   const commit = () => {
@@ -51,24 +35,17 @@ function EditableField({
     if (trimmed && trimmed !== value) onSave(trimmed)
     else setDraft(value)
   }
-
   const cancel = () => { setEditing(false); setDraft(value) }
 
-  if (!editing) {
-    return (
-      <span
-        className={`group/edit inline-flex items-center gap-2 cursor-pointer ${className}`}
-        onClick={() => setEditing(true)}
-      >
-        {value || <span className="text-[#52525b]">{placeholder}</span>}
-        <Pencil className="w-4 h-4 text-[#52525b] opacity-0 group-hover/edit:opacity-100 transition-opacity flex-shrink-0" />
-      </span>
-    )
-  }
+  if (!editing) return (
+    <span className={`group/edit inline-flex items-center gap-2 cursor-pointer ${className}`} onClick={() => setEditing(true)}>
+      {value || <span className="text-[#52525b]">{placeholder}</span>}
+      <Pencil className="w-4 h-4 text-[#52525b] opacity-0 group-hover/edit:opacity-100 transition-opacity flex-shrink-0" />
+    </span>
+  )
 
   const sharedProps = {
-    ref,
-    value: draft,
+    ref, value: draft,
     onChange: (e: any) => setDraft(e.target.value),
     onKeyDown: (e: any) => {
       if (e.key === 'Enter' && !multiline) { e.preventDefault(); commit() }
@@ -84,7 +61,6 @@ function EditableField({
     : <input {...sharedProps} />
 }
 
-// Delete confirmation modal
 function DeleteModal({ name, onConfirm, onCancel }: { name: string; onConfirm: () => void; onCancel: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
@@ -99,15 +75,34 @@ function DeleteModal({ name, onConfirm, onCancel }: { name: string; onConfirm: (
           </div>
         </div>
         <div className="flex gap-3">
-          <button onClick={onCancel} className="flex-1 py-2.5 rounded-xl bg-[#1a1a1a] border border-[rgba(255,255,255,0.08)] text-white text-sm font-medium hover:bg-[#222] transition-colors">
-            Cancel
-          </button>
-          <button onClick={onConfirm} className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-bold transition-colors">
-            Delete
-          </button>
+          <button onClick={onCancel} className="flex-1 py-2.5 rounded-xl bg-[#1a1a1a] border border-[rgba(255,255,255,0.08)] text-white text-sm font-medium hover:bg-[#222] transition-colors">Cancel</button>
+          <button onClick={onConfirm} className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-bold transition-colors">Delete</button>
         </div>
       </div>
     </div>
+  )
+}
+
+// Sort field + direction combined
+type SortField = 'default' | 'title' | 'artist' | 'duration'
+type SortDir = 'asc' | 'desc'
+
+// Column header with sort toggle
+function SortHeader({ label, field, current, dir, onSort, className = '' }: {
+  label: string; field: SortField; current: SortField; dir: SortDir
+  onSort: (f: SortField) => void; className?: string
+}) {
+  const active = current === field
+  return (
+    <button
+      onClick={() => onSort(field)}
+      className={`flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest transition-colors ${active ? 'text-[#2563eb]' : 'text-[#52525b] hover:text-white'} ${className}`}
+    >
+      {label}
+      {active
+        ? dir === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
+        : <ChevronsUpDown className="w-3 h-3 opacity-40" />}
+    </button>
   )
 }
 
@@ -118,8 +113,8 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
   const [songs, setSongs] = useState<any[]>([])
   const [selectedColor, setSelectedColor] = useState<string | null>(null)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
-  type SortOption = 'default' | 'title' | 'artist' | 'duration'
-  const [sortBy, setSortBy] = useState<SortOption>('default')
+  const [sortField, setSortField] = useState<SortField>('default')
+  const [sortDir, setSortDir] = useState<SortDir>('asc')
   const [isLoading, setIsLoading] = useState(true)
   const { playSong } = usePlayerStore()
   const { user } = useAuthStore()
@@ -160,32 +155,6 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
     router.push('/library')
   }
 
-  const mapSong = (s: any) => ({
-    videoId: s.video_id,
-    title: s.title,
-    artist: s.artist,
-    thumbnail: s.thumbnail,
-    duration: s.duration,
-  })
-
-  const handlePlayAll = () => {
-    if (!songs.length) return
-    const queue = sortedSongs.map(mapSong)
-    playSong(queue[0], queue)
-  }
-
-  const handlePlaySong = (index: number) => {
-    const queue = sortedSongs.map(mapSong)
-    playSong(queue[index], queue)
-  }
-
-  const handleShufflePlay = () => {
-    if (!songs.length) return
-    const shuffled = [...songs.map(mapSong)].sort(() => Math.random() - 0.5)
-    playSong(shuffled[0], shuffled)
-    usePlayerStore.getState().toggleShuffle()
-  }
-
   const handleRemoveSong = async (songId: string) => {
     const prev = [...songs]
     setSongs(s => s.filter(x => x.id !== songId))
@@ -197,21 +166,32 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
       })
       if (!res.ok) throw new Error()
       window.dispatchEvent(new CustomEvent('playlist-updated'))
-    } catch {
-      setSongs(prev)
+    } catch { setSongs(prev) }
+  }
+
+  // Toggle sort: same field flips direction, new field resets to asc
+  const handleSort = (field: SortField) => {
+    if (field === sortField) {
+      setSortDir(d => d === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortField(field)
+      setSortDir('asc')
     }
   }
 
-  const totalDuration = songs.reduce((acc, s) => acc + (s.duration || 0), 0)
-
   const sortedSongs = [...songs].sort((a, b) => {
-    switch (sortBy) {
-      case 'title': return a.title.localeCompare(b.title)
-      case 'artist': return a.artist.localeCompare(b.artist)
-      case 'duration': return (a.duration || 0) - (b.duration || 0)
-      default: return 0
+    let cmp = 0
+    switch (sortField) {
+      case 'title': cmp = a.title.localeCompare(b.title); break
+      case 'artist': cmp = a.artist.localeCompare(b.artist); break
+      case 'duration': cmp = (a.duration || 0) - (b.duration || 0); break
+      default: cmp = 0
     }
+    return sortDir === 'asc' ? cmp : -cmp
   })
+
+  const mapSong = (s: any) => ({ videoId: s.video_id, title: s.title, artist: s.artist, thumbnail: s.thumbnail, duration: s.duration })
+  const totalDuration = songs.reduce((acc, s) => acc + (s.duration || 0), 0)
 
   const colorOptions = [
     { name: 'Blue', gradient: 'from-blue-600 to-purple-600' },
@@ -241,11 +221,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
   return (
     <>
       {showDeleteModal && (
-        <DeleteModal
-          name={playlist.name}
-          onConfirm={handleDeletePlaylist}
-          onCancel={() => setShowDeleteModal(false)}
-        />
+        <DeleteModal name={playlist.name} onConfirm={handleDeletePlaylist} onCancel={() => setShowDeleteModal(false)} />
       )}
 
       <div className="px-6 pt-6 pb-32 overflow-y-auto">
@@ -258,7 +234,6 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
           <div className="flex flex-col justify-end gap-3 flex-1 min-w-0">
             <p className="text-[12px] font-bold uppercase tracking-widest text-[#2563eb]">Playlist</p>
 
-            {/* Editable name */}
             <EditableField
               value={playlist.name}
               onSave={(val) => patchPlaylist({ name: val })}
@@ -267,7 +242,6 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
               placeholder="Playlist name"
             />
 
-            {/* Editable description */}
             <EditableField
               value={playlist.description || ''}
               onSave={(val) => patchPlaylist({ description: val })}
@@ -287,22 +261,24 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
 
             <div className="flex items-center gap-3 mt-2">
               <button
-                onClick={handlePlayAll}
+                onClick={() => { const q = sortedSongs.map(mapSong); playSong(q[0], q) }}
                 disabled={!songs.length}
                 className="flex items-center gap-2 px-8 py-3 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded-full font-bold transition-all hover:scale-105 active:scale-95 disabled:opacity-50 shadow-lg shadow-blue-900/20"
               >
-                <Play className="w-5 h-5 fill-current" />
-                Play
+                <Play className="w-5 h-5 fill-current" /> Play
               </button>
               <button
-                onClick={handleShufflePlay}
+                onClick={() => {
+                  if (!songs.length) return
+                  const shuffled = [...songs.map(mapSong)].sort(() => Math.random() - 0.5)
+                  playSong(shuffled[0], shuffled)
+                  usePlayerStore.getState().toggleShuffle()
+                }}
                 disabled={!songs.length}
                 className="flex items-center gap-2 px-6 py-3 bg-[#1a1a1a] hover:bg-[#222] border border-[rgba(255,255,255,0.08)] text-white rounded-full font-bold transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
               >
-                <Shuffle className="w-5 h-5" />
-                Shuffle
+                <Shuffle className="w-5 h-5" /> Shuffle
               </button>
-              {/* Delete playlist */}
               <button
                 onClick={() => setShowDeleteModal(true)}
                 className="p-3 rounded-full bg-[#1a1a1a] hover:bg-red-500/10 border border-[rgba(255,255,255,0.08)] hover:border-red-500/30 text-[#52525b] hover:text-red-500 transition-all"
@@ -319,10 +295,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                 {colorOptions.map(c => (
                   <button
                     key={c.name}
-                    onClick={() => {
-                      setSelectedColor(c.gradient)
-                      patchPlaylist({ color: c.gradient })
-                    }}
+                    onClick={() => { setSelectedColor(c.gradient); patchPlaylist({ color: c.gradient }) }}
                     className={`w-5 h-5 rounded-full bg-gradient-to-br ${c.gradient} transition-all hover:scale-110 ${activeGradient === c.gradient ? 'ring-2 ring-white ring-offset-1 ring-offset-black scale-110' : ''}`}
                     title={c.name}
                   />
@@ -334,23 +307,6 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
 
         {/* Songs list */}
         <div className="mt-8">
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-sm text-[#52525b]">{songs.length} songs</p>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-[#52525b]">Sort by</span>
-              <select
-                value={sortBy}
-                onChange={e => setSortBy(e.target.value as SortOption)}
-                className="bg-[#1a1a1a] border border-[rgba(255,255,255,0.08)] text-white text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-[#2563eb] cursor-pointer"
-              >
-                <option value="default">Date Added</option>
-                <option value="title">Title</option>
-                <option value="artist">Artist</option>
-                <option value="duration">Duration</option>
-              </select>
-            </div>
-          </div>
-
           {songs.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-[#52525b]">
               <Music className="w-12 h-12 mb-4 opacity-20" />
@@ -359,11 +315,21 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
             </div>
           ) : (
             <div className="w-full">
-              <div className="flex items-center px-4 py-2 text-[#52525b] text-[11px] font-bold uppercase tracking-widest border-b border-[rgba(255,255,255,0.04)] mb-2">
-                <span className="w-8">#</span>
-                <span className="flex-1">Title</span>
-                <span className="w-48 hidden md:block">Artist</span>
-                <span className="w-20 flex justify-end"><Clock className="w-3.5 h-3.5" /></span>
+              {/* Column headers with sort */}
+              <div className="flex items-center px-4 py-2 border-b border-[rgba(255,255,255,0.04)] mb-2">
+                <span className="w-8 text-[#52525b] text-[11px] font-bold uppercase tracking-widest">#</span>
+                <div className="flex-1">
+                  <SortHeader label="Title" field="title" current={sortField} dir={sortDir} onSort={handleSort} />
+                </div>
+                <div className="w-48 hidden md:block">
+                  <SortHeader label="Artist" field="artist" current={sortField} dir={sortDir} onSort={handleSort} />
+                </div>
+                <div className="w-20 flex justify-end">
+                  <SortHeader label="" field="duration" current={sortField} dir={sortDir} onSort={handleSort}
+                    className="gap-0.5"
+                  />
+                  <Clock className="w-3.5 h-3.5 text-[#52525b] ml-1" />
+                </div>
                 <span className="w-12" />
               </div>
 
@@ -371,7 +337,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                 <div
                   key={song.id}
                   className="group flex items-center px-4 py-2 rounded-xl hover:bg-[rgba(255,255,255,0.04)] transition-all cursor-pointer"
-                  onClick={() => handlePlaySong(index)}
+                  onClick={() => { const q = sortedSongs.map(mapSong); playSong(q[index], q) }}
                 >
                   <div className="w-8 text-[#52525b] text-sm font-medium">
                     <span className="group-hover:hidden">{index + 1}</span>
