@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿import { NextRequest, NextResponse } from 'next/server'
 import { getCache, setCache } from '@/lib/cache'
 
 function cleanQuery(title: string, artist: string): string {
@@ -84,8 +84,7 @@ export async function GET(
   const title = request.nextUrl.searchParams.get('title') || ''
   const artist = request.nextUrl.searchParams.get('artist') || ''
 
-  if (!title) {
-    return NextResponse.json({ error: 'title param required' }, { status: 400 })
+, { status: 400 })
   }
 
   const cacheKey = `stream:saavn:${videoId}`
@@ -101,8 +100,9 @@ export async function GET(
     return NextResponse.json({ error: 'Song not found' }, { status: 404 })
   }
 
-  console.log(`[Stream] ✓ Found: ${result.title} | ${result.streamUrl.substring(0, 60)}...`)
+  console.log(`[Stream] âœ“ Found: ${result.title} | ${result.streamUrl.substring(0, 60)}...`)
 
   setCache(cacheKey, result, 6 * 60 * 60 * 1000)
   return NextResponse.json(result)
 }
+

@@ -1,4 +1,4 @@
-package com.prakhar.sonic;
+﻿package com.prakhar.sonic;
 
 import android.Manifest;
 import android.accounts.Account;
@@ -31,7 +31,7 @@ public class YouTubeMusicPlugin extends Plugin implements MediaPlaybackService.P
 
     private static final OkHttpClient client = new OkHttpClient();
 
-    // ─── Service binding ──────────────────────────────────────────────────────
+    // â”€â”€â”€ Service binding â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private MediaPlaybackService playbackService;
     private boolean serviceBound = false;
@@ -67,7 +67,7 @@ public class YouTubeMusicPlugin extends Plugin implements MediaPlaybackService.P
         }
     }
 
-    // ─── PlaybackCallback — fires events back to JavaScript ──────────────────
+    // â”€â”€â”€ PlaybackCallback â€” fires events back to JavaScript â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     @Override
     public void onPlaybackStarted() {
@@ -97,7 +97,7 @@ public class YouTubeMusicPlugin extends Plugin implements MediaPlaybackService.P
         notifyListeners("progressUpdate", data);
     }
 
-    // ─── Plugin methods called from JavaScript ────────────────────────────────
+    // â”€â”€â”€ Plugin methods called from JavaScript â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     /**
      * Called by JS to load and play a song natively.
@@ -154,7 +154,7 @@ public class YouTubeMusicPlugin extends Plugin implements MediaPlaybackService.P
         call.resolve(result);
     }
 
-    // ─── Stream URL fetching (unchanged from your original) ──────────────────
+    // â”€â”€â”€ Stream URL fetching (unchanged from your original) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private String getGoogleAuthToken() {
         try {
@@ -200,37 +200,29 @@ public class YouTubeMusicPlugin extends Plugin implements MediaPlaybackService.P
     }
 
     private String fetchStreamUrl(String videoId, String token) throws IOException, JSONException {
-        String url = "https://music.youtube.com/youtubei/v1/player?prettyPrint=false";
+        String url = "https://www.youtube.com/youtubei/v1/player?prettyPrint=false";
 
         JSONObject clientObj = new JSONObject();
-        clientObj.put("clientName", "ANDROID_MUSIC");
-        clientObj.put("clientVersion", "6.21.52");
-        clientObj.put("androidSdkVersion", 30);
+        clientObj.put("clientName", "ANDROID");
+        clientObj.put("clientVersion", "19.29.37");
+        clientObj.put("androidSdkVersion", 34);
         clientObj.put("hl", "en");
-        clientObj.put("gl", "IN");
-        clientObj.put("utcOffsetMinutes", 330);
+        clientObj.put("gl", "US");
+        clientObj.put("utcOffsetMinutes", 0);
 
         JSONObject contextObj = new JSONObject();
         contextObj.put("client", clientObj);
 
-        JSONObject contentPlaybackContext = new JSONObject();
-        contentPlaybackContext.put("signatureTimestamp", "20157");
-        JSONObject playbackContext = new JSONObject();
-        playbackContext.put("contentPlaybackContext", contentPlaybackContext);
-
-        JSONObject bodyObj = new JSONObject();
-        bodyObj.put("videoId", videoId);
-        bodyObj.put("context", contextObj);
-        bodyObj.put("playbackContext", playbackContext);
+        
 
         Request.Builder requestBuilder = new Request.Builder()
             .url(url)
             .post(RequestBody.create(bodyObj.toString(), MediaType.parse("application/json; charset=utf-8")))
             .addHeader("Content-Type", "application/json")
-            .addHeader("User-Agent", "com.google.android.apps.youtube.music/6.21.52 (Linux; U; Android 11; en_IN; Pixel 5; Build/RQ3A.210805.001+A1) gzip")
+            .addHeader("User-Agent", "com.google.android.youtube/19.29.37 (Linux; U; Android 14) gzip")
             .addHeader("X-Goog-Api-Format-Version", "1")
-            .addHeader("X-YouTube-Client-Name", "21")
-            .addHeader("X-YouTube-Client-Version", "6.21.52");
+            .addHeader("X-YouTube-Client-Name", "3")
+            .addHeader("X-YouTube-Client-Version", "19.29.37");
 
         if (token != null) {
             requestBuilder.addHeader("Authorization", "Bearer " + token);

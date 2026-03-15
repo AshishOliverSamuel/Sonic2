@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useEffect, useRef } from 'react'
 import { Capacitor } from '@capacitor/core'
 import {
@@ -22,9 +22,9 @@ interface Props {
   onEnded: () => void
   onError: () => void
   seekTo?: number
-  title?: string       // ← add
-  artist?: string      // ← add
-  thumbnail?: string   // ← add
+  title?: string       // â† add
+  artist?: string      // â† add
+  thumbnail?: string   // â† add
 }
 
 declare global {
@@ -34,7 +34,7 @@ declare global {
   }
 }
 
-// ─── Native Android Player ────────────────────────────────────────────────────
+// â”€â”€â”€ Native Android Player â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Audio lives entirely in MediaPlaybackService (background-safe).
 // This component just sends commands and listens to events.
 
@@ -54,7 +54,7 @@ function NativePlayer({
 
     const load = async () => {
       try {
-        const streamUrl = await getNativeStreamUrl(videoId, title ?? '', artist ?? '')
+        const streamUrl = await getNativeStreamUrl(videoId)
         if (!streamUrl) { onError(); return }
         await nativeLoadAndPlay({
           streamUrl,
@@ -95,13 +95,13 @@ function NativePlayer({
     if (seekTo !== undefined) nativeSeekTo(seekTo).catch(() => { })
   }, [seekTo])
 
-  // Volume — native MediaPlayer uses system volume; nothing to do here
+  // Volume â€” native MediaPlayer uses system volume; nothing to do here
   // but you could add a nativeSetVolume() method later if needed
 
-  return null // No DOM element needed — service owns the audio
+  return null // No DOM element needed â€” service owns the audio
 }
 
-// ─── Web YouTube IFrame Player (unchanged) ────────────────────────────────────
+// â”€â”€â”€ Web YouTube IFrame Player (unchanged) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function WebPlayer({
   videoId, isPlaying, volume,
@@ -187,7 +187,7 @@ function WebPlayer({
   )
 }
 
-// ─── Main Export ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ Main Export â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export function YouTubePlayer(props: Props) {
   if (Capacitor.isNativePlatform()) {
