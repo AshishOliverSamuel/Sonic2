@@ -82,7 +82,7 @@ function NativePlayer({
     addNativeErrorListener(onError)
 
     return () => { removeAllNativeListeners() }
-  }, [onReady, onProgress, onEnded, onError])
+  }, [])
 
   // Play / Pause
   useEffect(() => {

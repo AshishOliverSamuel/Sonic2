@@ -1,5 +1,6 @@
 import { Capacitor, registerPlugin } from '@capacitor/core'
 
+
 const YouTubeMusic = registerPlugin('YouTubeMusic')
 
 // ─── Stream URL — fetches from your Vercel/JioSaavn backend ──────────────────
@@ -15,8 +16,9 @@ export async function getNativeStreamUrl(
         const res = await fetch(
             `https://sonic-amber-three.vercel.app/api/stream/${videoId}?${params}`
         )
-        if (!res.ok) return null
+        console.log('Stream fetch status:', res.status)
         const data = await res.json()
+        console.log('Stream data:', JSON.stringify(data))
         return data.streamUrl ?? null
     } catch (e) {
         console.error('Stream URL fetch error:', e)
