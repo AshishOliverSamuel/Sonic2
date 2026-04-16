@@ -1,26 +1,17 @@
-FROM golang:1.21 AS builder
+FROM node:20 AS builder
 
 WORKDIR /app
 
-COPY go.mod go.sum ./
-RUN go mod download
+COPY package.json package-lock.json ./
+RUN npm install
 
 COPY . .
+RUN npm run build
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o main .
+FROM nginx:alpine
 
-FROM alpine:latest
+COPY --from=builder /app/build /usr/share/nginx/html
 
-WORKDIR /app
+EXPOSE 80
 
-RUN apk --no-cache add ca-certificates
-
-RUN adduser -D appuser
-
-COPY --from=builder /app/main .
-
-USER appuser
-
-EXPOSE 8080
-
-CMD ["./main"]
+CMD ["nginx", "-g", "daemon off;"]
