@@ -1,17 +1,26 @@
-FROM node:20 AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm install
+RUN npm ci
 
 COPY . .
 RUN npm run build
 
-FROM nginx:alpine
+FROM node:22-alpine AS runner
 
-COPY --from=builder /app/build /usr/share/nginx/html
+WORKDIR /app
 
-EXPOSE 80
+ENV NODE_ENV=production
 
-CMD ["nginx", "-g", "daemon off;"]
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/package-lock.json ./package-lock.json
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/next.config.ts ./next.config.ts
+
+EXPOSE 3000
+
+CMD ["npm", "start"]
