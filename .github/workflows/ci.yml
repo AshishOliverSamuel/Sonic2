@@ -13,17 +13,17 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 23
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Build React App
+      - name: Build Next.js App
         run: npm run build
 
   docker:
@@ -32,10 +32,10 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Build Docker Image
-        run: docker build -t sonic2-app .
+        run: docker build -t sonic2-app . --no-cache
 
   deploy:
     runs-on: ubuntu-latest
